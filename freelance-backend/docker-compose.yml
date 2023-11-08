@@ -1,0 +1,42 @@
+services:
+  account-service:
+    build: ./account-service
+    ports:
+      - "3001:80"
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "3002:8080"
+  loan-service:
+    build: ./loan-service
+    environment:
+      - notification_service=http://notification-service:8080
+      - payment_service=http://payment-service:80
+    ports:
+      - "3003:80"
+  user-service:
+    build: ./user-service
+    ports:
+      - "3004:80"
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "3005:80"
+  invoice-service:
+    build: ./invoice-service
+    ports:
+      - "3006:80"
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - user-service
+      - loan-service
+      - account-service
+      - notification-service
+      - payment-service
+      - invoice-service
